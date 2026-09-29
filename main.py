@@ -1,7 +1,20 @@
 import os
 import subprocess
+from threading import Thread
+from flask import Flask
 from pyrogram import Client, filters
 
+# Render par bot ko active rakhne ke liye chota web server
+flask_app = Flask('')
+
+@flask_app.route('/')
+def home():
+    return "Bot is Running Live!"
+
+def run_flask():
+    flask_app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
+
+# Main Telegram Bot Code
 API_ID = int(os.environ.get("API_ID"))
 API_HASH = os.environ.get("API_HASH")
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -32,4 +45,9 @@ async def convert_video(client, message):
     if os.path.exists(file_path): os.remove(file_path)
     if os.path.exists(output_path): os.remove(output_path)
 
-app.run()
+if __name__ == "__main__":
+    # Web server ko background me start karein
+    Thread(target=run_flask).start()
+    # Telegram bot ko run karein
+    app.run()
+    
